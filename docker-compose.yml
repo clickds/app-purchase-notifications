@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  app:
+    build:
+      args:
+        user: james
+        uid: 1000
+      context: .
+      dockerfile: .docker/Dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - ".:/var/www/html"
+    networks:
+      - app-network
+    depends_on:
+      - app-test-database
+
+  app-test-database:
+    image: mysql:5.7.22
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+      MYSQL_DATABASE: app
+    volumes:
+      - .docker/mysql/my.cnf:/etc/mysql/my.cnf:delegated
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  app-database-data:
+    driver: local
+

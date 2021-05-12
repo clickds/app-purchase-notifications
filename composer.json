@@ -1,0 +1,33 @@
+{
+    "name": "clickds/app-purchase-notifications",
+    "description": "A package for dealing with subscriptions made via Google and Apple app stores",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "clickds",
+            "email": "developers@clickdigitalsolutions.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ClickDs\\AppPurchaseNotifications\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ClickDs\\AppPurchaseNotifications\\Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+          "orchestra/testbench": "^6.0",
+          "phpunit/phpunit": "^9.5"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ClickDs\\AppPurchaseNotifications\\AppPurchaseNotificationsServiceProvider"
+            ]
+        }
+    }
+}

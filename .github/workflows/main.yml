@@ -1,48 +1,50 @@
-# This is a basic workflow to help you get started with Actions
+name: Run tests
 
-name: CI
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: '*'
   pull_request:
     branches: '*'
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  the-work:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    php-tests:
+        runs-on: ${{ matrix.os }}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+        strategy:
+            matrix:
+                php: [7.4, 8.0]
+                laravel: [7.*, 8.*]
+                dependency-version: [prefer-stable]
+                os: [ubuntu-latest, windows-latest]
+                include:
+                    - laravel: 7.*
+                      testbench: 5.*
+                    - laravel: 8.*
+                      testbench: 6.*
 
-      # See: https://github.com/actions/cache
-      # Cache Composer Dependencies
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+        name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
-      - name: Start Environment
-        run: ./develop up -d
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
 
-      - name: Install dev dependencies
-        run: ./develop composer install
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+                  coverage: none
+                  tools: composer:v2
 
-      - name: Run tests
-        run: APP_ENV=testing ./develop test
+            - name: Install PHP 7 dependencies
+              run: |
+                composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                composer update --${{ matrix.dependency-version }} --no-interaction --no-progress
+              if: "matrix.php < 8"
+
+            - name: Install PHP 8 dependencies
+              run: composer update --${{ matrix.dependency-version }} --ignore-platform-req=php --no-interaction --no-progress
+              if: "matrix.php >= 8"
+
+            - name: Execute tests
+              run: vendor/bin/phpunit

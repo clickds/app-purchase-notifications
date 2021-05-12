@@ -2,6 +2,7 @@
 
 namespace ClickDs\AppPurchaseNotifications\Tests\Feature\Apple;
 
+use ClickDs\AppPurchaseNotifications\Models\AppleNotification;
 use ClickDs\AppPurchaseNotifications\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -22,6 +23,7 @@ class InitialBuyTest extends TestCase
         $response = $this->makeRequest($payload);
 
         $response->assertSuccessful();
+        $this->assertDatabaseCount('apple_notifications', 1);
     }
 
     private function makeRequest(array $payload): TestResponse
@@ -32,8 +34,8 @@ class InitialBuyTest extends TestCase
 
     private function payload(): array
     {
-        return [
-            'notification_type' => 'INITIAL_BUY',
-        ];
+        $data = AppleNotification::factory()->definition();
+        $data['notification_type'] = 'INITIAL_BUY';
+        return $data;
     }
 }

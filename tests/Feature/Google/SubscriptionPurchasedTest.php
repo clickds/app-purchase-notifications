@@ -2,6 +2,7 @@
 
 namespace ClickDs\AppPurchaseNotifications\Tests\Feature\Google;
 
+use ClickDs\AppPurchaseNotifications\Models\GoogleNotification;
 use ClickDs\AppPurchaseNotifications\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -22,6 +23,7 @@ class SubscriptionPurchasedTest extends TestCase
         $response = $this->makeRequest($payload);
 
         $response->assertSuccessful();
+        $this->assertDatabaseCount('google_notifications', 1);
     }
 
     private function makeRequest(array $payload): TestResponse
@@ -32,8 +34,8 @@ class SubscriptionPurchasedTest extends TestCase
 
     private function payload(): array
     {
-        return [
-            'notificationType' => 4,
-        ];
+        $data = GoogleNotification::factory()->definition();
+        $data['subscriptionNotification']['notificationType'] = 4;
+        return $data;
     }
 }

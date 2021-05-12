@@ -3,8 +3,11 @@
 namespace ClickDs\AppPurchaseNotifications\Http\Controllers;
 
 use ClickDs\AppPurchaseNotifications\Models\GoogleNotification;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GoogleWebhooksController extends Controller
 {
@@ -12,12 +15,27 @@ class GoogleWebhooksController extends Controller
     {
         $notificationType = $this->calculateNotificationType($request);
 
-        GoogleNotification::create([
+        $notification = GoogleNotification::create([
             'type' => $notificationType,
             'payload' => $request->all(),
         ]);
 
-        return new JsonResponse(null, 204);
+        try {
+            $this->dispatchJob($notification);
+            return new JsonResponse(null, 204);
+        } catch (Throwable $e) {
+            Log::error($e);
+            return new JsonResponse(null, 501);
+        }
+    }
+
+    private function dispatchJob(GoogleNotification $googleNotification): void
+    {
+        $jobClass = $googleNotification->jobClass();
+        if (is_null($jobClass)) {
+            throw new Exception("Could not handle google notification {$googleNotification->id}");
+        }
+        $jobClass::dispatch($googleNotification);
     }
 
     private function calculateNotificationType(Request $request)

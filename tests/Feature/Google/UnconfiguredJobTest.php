@@ -3,34 +3,32 @@
 namespace ClickDs\AppPurchaseNotifications\Tests\Feature\Google;
 
 use ClickDs\AppPurchaseNotifications\Models\GoogleNotification;
-use ClickDs\AppPurchaseNotifications\Tests\Support\DummyGoogleJob;
 use ClickDs\AppPurchaseNotifications\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 
-class SubscriptionPurchasedTest extends TestCase
+class UnconfiguredJobTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dispatches_configured_job(): void
+    protected function defineEnvironment($app)
     {
-        $payload = $this->payload();
-
-        $response = $this->makeRequest($payload);
-
-        $response->assertSuccessful();
-        Queue::assertPushed(DummyGoogleJob::class);
+        $app['config']->set('google', [
+            'subscription_purchased' => null,
+        ]);
     }
 
-    public function test_stores_notification_payload(): void
+    public function test_dispatches_configured_job(): void
     {
+        Log::shouldReceive('error')->once();
         $payload = $this->payload();
 
         $response = $this->makeRequest($payload);
 
-        $response->assertSuccessful();
-        $this->assertDatabaseCount('google_notifications', 1);
+        $response->assertStatus(501);
+        Queue::assertNothingPushed();
     }
 
     private function makeRequest(array $payload): TestResponse

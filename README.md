@@ -10,9 +10,11 @@ https://github.com/googleapis/google-api-php-client/issues/1529
 https://github.com/googleapis/google-api-php-client-services/tree/master/src/Google/Service/AndroidPublisher
 https://developers.google.com/android-publisher/api-ref/rest
 
-
-
-
 # Useful Resources
 [Laravel Package](https://laravelpackage.com)
 [Laravel Docs](https://laravel.com/docs/8.x/packages)
+
+# Publishing config
+```sh
+php artisan vendor:publish --provider="ClickDs\AppPurchaseNotifications\AppPurchaseNotificationsServiceProvider" --tag="config"
+```

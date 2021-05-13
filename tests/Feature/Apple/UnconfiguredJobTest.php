@@ -3,34 +3,32 @@
 namespace ClickDs\AppPurchaseNotifications\Tests\Feature\Apple;
 
 use ClickDs\AppPurchaseNotifications\Models\AppleNotification;
-use ClickDs\AppPurchaseNotifications\Tests\Support\DummyAppleJob;
 use ClickDs\AppPurchaseNotifications\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 
-class InitialBuyTest extends TestCase
+class UnconfiguredJobTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dispatches_configured_job(): void
+    protected function defineEnvironment($app)
     {
-        $payload = $this->payload();
-
-        $response = $this->makeRequest($payload);
-
-        $response->assertSuccessful();
-        Queue::assertPushed(DummyAppleJob::class);
+        $app['config']->set('apple', [
+            'initial_buy' => null,
+        ]);
     }
 
-    public function test_stores_notification_payload(): void
+    public function test_dispatches_configured_job(): void
     {
+        Log::shouldReceive('error')->once();
         $payload = $this->payload();
 
         $response = $this->makeRequest($payload);
 
-        $response->assertSuccessful();
-        $this->assertDatabaseCount('apple_notifications', 1);
+        $response->assertStatus(501);
+        Queue::assertNothingPushed();
     }
 
     private function makeRequest(array $payload): TestResponse

@@ -40,19 +40,19 @@ class GoogleNotification extends Model
      * An array of google notification type => job config name
      */
     public const SUBSCRIPTION_NOTIFICATION_JOB_CONFIG = [
-        'SUBSCRIPTION_RECOVERED' => 'google_subscription_recovered',
-        'SUBSCRIPTION_RENEWED' => 'google_subscription_renewed',
-        'SUBSCRIPTION_CANCELED' => 'google_subscription_cancelled',
-        'SUBSCRIPTION_PURCHASED' => 'google_subscription_purchased',
-        'SUBSCRIPTION_ON_HOLD' => 'google_subscription_on_hold',
-        'SUBSCRIPTION_IN_GRACE_PERIOD' => 'google_subscription_in_grace_period',
-        'SUBSCRIPTION_RESTARTED' => 'google_subscription_restarted',
-        'SUBSCRIPTION_PRICE_CHANGE_CONFIRMED' => 'google_subscription_price_change_confirmed',
-        'SUBSCRIPTION_DEFERRED' => 'google_subscription_deferred',
-        'SUBSCRIPTION_PAUSED' => 'google_subscription_paused',
-        'SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED' => 'google_subscription_pause_schedule_changed',
-        'SUBSCRIPTION_REVOKED' => 'google_subscription_revoked',
-        'SUBSCRIPTION_EXPIRED' => 'google_subscription_expired',
+        'SUBSCRIPTION_RECOVERED' => 'subscription_recovered',
+        'SUBSCRIPTION_RENEWED' => 'subscription_renewed',
+        'SUBSCRIPTION_CANCELED' => 'subscription_cancelled',
+        'SUBSCRIPTION_PURCHASED' => 'subscription_purchased',
+        'SUBSCRIPTION_ON_HOLD' => 'subscription_on_hold',
+        'SUBSCRIPTION_IN_GRACE_PERIOD' => 'subscription_in_grace_period',
+        'SUBSCRIPTION_RESTARTED' => 'subscription_restarted',
+        'SUBSCRIPTION_PRICE_CHANGE_CONFIRMED' => 'subscription_price_change_confirmed',
+        'SUBSCRIPTION_DEFERRED' => 'subscription_deferred',
+        'SUBSCRIPTION_PAUSED' => 'subscription_paused',
+        'SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED' => 'subscription_pause_schedule_changed',
+        'SUBSCRIPTION_REVOKED' => 'subscription_revoked',
+        'SUBSCRIPTION_EXPIRED' => 'subscription_expired',
     ];
 
     // Disable Laravel's mass assignment protection
@@ -66,4 +66,22 @@ class GoogleNotification extends Model
     protected $casts = [
         'payload' => 'array',
     ];
+
+    public function jobClass(): ?string
+    {
+        $jobKey = $this->jobKey();
+        if (is_null($jobKey)) {
+            return null;
+        }
+        $key = 'app-purchase-notifications.google.' . $jobKey;
+        return config($key, null);
+    }
+
+    private function jobKey(): ?string
+    {
+        if (array_key_exists($this->type, static::SUBSCRIPTION_NOTIFICATION_JOB_CONFIG)) {
+            return static::SUBSCRIPTION_NOTIFICATION_JOB_CONFIG[$this->type];
+        }
+        return null;
+    }
 }

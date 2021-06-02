@@ -40,9 +40,13 @@ class GoogleWebhooksController extends Controller
 
     private function calculateNotificationType(Request $request)
     {
-        if ($request->has('subscriptionNotification')) {
-            $notificationType = $request->input('subscriptionNotification.notificationType');
+        if (!$request->has('subscriptionNotification')) {
+            return 'Unknown';
+        }
+        $notificationType = $request->input('subscriptionNotification.notificationType');
+        if (array_key_exists($notificationType, GoogleNotification::GOOGLE_SUBSCRIPTION_NOTIFICATION_TYPES)) {
             return GoogleNotification::GOOGLE_SUBSCRIPTION_NOTIFICATION_TYPES[$notificationType];
         }
+        return $notificationType;
     }
 }

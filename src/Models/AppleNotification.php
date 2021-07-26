@@ -11,17 +11,22 @@ class AppleNotification extends Model
 {
     /**
      * An array of Apple Notification types => Job configuration name
+     *
+     * https://developer.apple.com/documentation/appstoreservernotifications/notification_type
      */
     public const NOTIFICATION_JOB_CONFIG = [
-        'INITIAL_BUY' => 'initial_buy',
         'CANCEL' => 'cancel',
-        'RENEWAL' => 'renewal',
-        'INTERACTIVE_RENEWAL' => 'interactive_renewal',
+        'CONSUMPTION_REQUEST' => 'consumption_request',
         'DID_CHANGE_RENEWAL_PREF' => 'did_change_renewal_pref',
         'DID_CHANGE_RENEWAL_STATUS' => 'did_change_renewal_status',
         'DID_FAIL_TO_RENEW' => 'did_fail_to_renew',
         'DID_RECOVER' => 'did_recover',
+        'DID_RENEW' => 'did_renew',
+        'INITIAL_BUY' => 'initial_buy',
+        'INTERACTIVE_RENEWAL' => 'interactive_renewal',
         'PRICE_INCREASE_CONSENT' => 'price_increase_consent',
+        'REFUND' => 'refund',
+        'REVOKE' => 'revoke',
     ];
 
     use HasFactory;

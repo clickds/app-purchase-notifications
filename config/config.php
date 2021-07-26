@@ -4,14 +4,17 @@ return [
      * Apple App Store Notifications
      */
     'apple' => [
-        'initial_buy' => null,
         'cancel' => null,
-        'renewal' => null,
-        'interactive_renewal' => null,
+        'consumption_request' => null,
         'did_change_renewal_pref' => null,
         'did_change_renewal_status' => null,
         'did_fail_to_renew' => null,
+        'did_renew' => null,
         'did_recover' => null,
+        'initial_buy' => null,
+        'refund' => null,
+        'revoke' => null,
+        'interactive_renewal' => null,
         'price_increase_consent' => null,
     ],
 

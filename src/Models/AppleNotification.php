@@ -3,12 +3,13 @@
 namespace ClickDs\AppPurchaseNotifications\Models;
 
 use ClickDs\AppPurchaseNotifications\Database\Factories\AppleNotificationFactory;
-use Illuminate\Contracts\Queue\Job;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AppleNotification extends Model
 {
+    use HasFactory;
+
     /**
      * An array of Apple Notification types => Job configuration name
      *
@@ -29,9 +30,10 @@ class AppleNotification extends Model
         'REVOKE' => 'revoke',
     ];
 
-    use HasFactory;
-
-    protected static function newFactory()
+    /**
+     * @return AppleNotificationFactory
+     */
+    protected static function newFactory(): AppleNotificationFactory
     {
         return AppleNotificationFactory::new();
     }
@@ -48,13 +50,19 @@ class AppleNotification extends Model
         'payload' => 'array',
     ];
 
+    /**
+     * @return string|null
+     */
     public function jobClass(): ?string
     {
-        $jobKey = static::NOTIFICATION_JOB_CONFIG[$this->type];
+        $jobKey = static::NOTIFICATION_JOB_CONFIG[$this->type] ?? null;
+
         if (is_null($jobKey)) {
             return null;
         }
+
         $key = 'app-purchase-notifications.apple.' . $jobKey;
+
         return config($key, null);
     }
 }
